@@ -6,17 +6,22 @@ Flask + SQLite 实现的教学竞赛管理平台，对应开题报告《基于 F
 
 ---
 
-## 1. 五分钟跑起来
+## 快速开始 (Quick Start)
 
-在 PowerShell 里依次执行（`python` 已经在你的 PATH 里）：
+请确保本地已安装 Python 3.8+ 环境。在终端中依次执行以下命令：
 
-```powershell
-cd "D:\Data management system\contest_system"
-pip install flask
+```bash
+# 1. 克隆项目到本地 (或者直接下载 ZIP 解压)
+git clone https://github.com/lyb-loebo/flask-competition-system.git
+
+# 2. 进入项目目录
+cd flask-competition-system
+
+# 3. 安装依赖包
+pip install -r requirements.txt
+
+# 4. 启动 Flask 服务
 python app.py
-```
-
-看到 `Running on http://127.0.0.1:5000` 就打开浏览器访问这个地址。
 
 **演示账号**（密码都是 `123456`）：
 
@@ -29,7 +34,7 @@ python app.py
 > 第一次启动会自动建库 `contest.db` 并写入演示数据。
 > 想恢复干净状态：删掉 `contest.db`，重新 `python app.py`。
 
-**验证系统是否正常**（不用打开浏览器）：
+**验证系统是否正常**：
 
 ```powershell
 python smoke_test.py
