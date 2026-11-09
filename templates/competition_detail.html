@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ comp.title }}{% endblock %}
+
+{% block content %}
+<a class="back" href="{{ url_for('index') }}">← 返回列表</a>
+
+<article class="detail">
+  <h1>{{ comp.title }} <span class="tag status-{{ comp.status }}">{{ COMP_STATUS.get(comp.status) }}</span></h1>
+  <table class="kv">
+    <tr><th>级别</th><td>{{ comp.level }}</td></tr>
+    <tr><th>类别</th><td>{{ comp.category or '—' }}</td></tr>
+    <tr><th>主办单位</th><td>{{ comp.organizer or '—' }}</td></tr>
+    <tr><th>报名时间</th><td>{{ comp.sign_start }} 至 {{ comp.sign_end }}</td></tr>
+    <tr><th>比赛时间</th><td>{{ comp.contest_date or '待定' }}</td></tr>
+    <tr><th>说明</th><td>{{ comp.description or '—' }}</td></tr>
+  </table>
+</article>
+
+{% if session.get('role') == 0 %}
+<section class="panel">
+  {% if my_reg %}
+    <p>你已报名，当前状态：<strong>{{ REG_STATUS.get(my_reg.status) }}</strong>
+      {% if my_reg.reason %}（原因：{{ my_reg.reason }}）{% endif %}
+    </p>
+  {% elif comp.status == 1 %}
+    <form method="post" action="{{ url_for('signup', cid=comp.id) }}">
+      <button class="primary" type="submit">立即报名</button>
+    </form>
+  {% else %}
+    <p class="muted">当前不在报名阶段</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if regs %}
+<section class="panel">
+  <h2>报名名单（{{ regs|length }} 人）</h2>
+  <table class="grid">
+    <thead>
+      <tr>
+        <th>学号</th><th>姓名</th><th>学院</th><th>状态</th><th>成绩</th><th>获奖</th>
+        {% if session.get('role') in (1, 2) %}<th>操作</th>{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in regs %}
+      <tr>
+        <td>{{ r.username }}</td>
+        <td>{{ r.real_name }}</td>
+        <td>{{ r.college or '—' }}</td>
+        <td><span class="tag reg-{{ r.status }}">{{ REG_STATUS.get(r.status) }}</span></td>
+        <td>{{ r.score if r.score is not none else '—' }}</td>
+        <td>{{ r.award_level or '—' }}</td>
+        {% if session.get('role') in (1, 2) %}
+        <td>
+          {% if r.status == 0 %}
+          <form method="post" action="{{ url_for('audit', rid=r.id) }}" class="inline">
+            <input type="hidden" name="action" value="pass">
+            <button class="mini ok" type="submit">通过</button>
+          </form>
+          <form method="post" action="{{ url_for('audit', rid=r.id) }}" class="inline">
+            <input type="hidden" name="action" value="reject">
+            <input type="text" name="reason" placeholder="驳回原因">
+            <button class="mini danger" type="submit">驳回</button>
+          </form>
+          {% else %}—{% endif %}
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% endblock %}

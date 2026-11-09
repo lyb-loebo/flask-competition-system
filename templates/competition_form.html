@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}发布竞赛{% endblock %}
+
+{% block content %}
+<h1>发布竞赛</h1>
+
+<form method="post" class="form">
+  <label>竞赛名称 <input name="title" required placeholder="如：全国大学生数学建模竞赛"></label>
+
+  <label>级别
+    <select name="level">
+      <option>校级</option>
+      <option>省级</option>
+      <option>国家级</option>
+    </select>
+  </label>
+
+  <label>类别 <input name="category" placeholder="如：程序设计"></label>
+  <label>主办单位 <input name="organizer" placeholder="如：教务处"></label>
+
+  <label>报名开始 <input type="date" name="sign_start" required></label>
+  <label>报名截止 <input type="date" name="sign_end" required></label>
+  <label>比赛日期 <input type="date" name="contest_date"></label>
+
+  <label>状态
+    <select name="status">
+      <option value="1">报名中</option>
+      <option value="2">报名截止</option>
+      <option value="3">评审中</option>
+      <option value="4">已公示</option>
+    </select>
+  </label>
+
+  <label>说明 <textarea name="description" rows="3" placeholder="竞赛简介、参赛要求等"></textarea></label>
+
+  <button class="primary" type="submit">发布</button>
+</form>
+{% endblock %}

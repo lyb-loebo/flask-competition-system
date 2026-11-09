@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}竞赛列表{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <h1>竞赛列表</h1>
+  <form method="get" class="filter">
+    <select name="status">
+      <option value="">全部状态</option>
+      {% for k, v in COMP_STATUS.items() %}
+        <option value="{{ k }}" {% if status == k %}selected{% endif %}>{{ v }}</option>
+      {% endfor %}
+    </select>
+    <select name="level">
+      <option value="">全部级别</option>
+      {% for lv in ["校级", "省级", "国家级"] %}
+        <option value="{{ lv }}" {% if level == lv %}selected{% endif %}>{{ lv }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">筛选</button>
+  </form>
+</section>
+
+<p class="muted">共 {{ total }} 项竞赛</p>
+
+<div class="cards">
+  {% for c in comps %}
+  <article class="card">
+    <div class="card-head">
+      <h2><a href="{{ url_for('competition_detail', cid=c.id) }}">{{ c.title }}</a></h2>
+      <span class="tag status-{{ c.status }}">{{ COMP_STATUS.get(c.status, '未知') }}</span>
+    </div>
+    <p class="meta">{{ c.level }} · {{ c.category or '未分类' }} · 主办：{{ c.organizer or '—' }}</p>
+    <p class="meta">报名 {{ c.sign_start }} 至 {{ c.sign_end }}{% if c.contest_date %} · 比赛 {{ c.contest_date }}{% endif %}</p>
+    <p class="desc">{{ c.description or '' }}</p>
+  </article>
+  {% else %}
+  <p class="empty">暂无竞赛</p>
+  {% endfor %}
+</div>
+
+{% if pages > 1 %}
+<div class="pager">
+  {% for p in range(1, pages + 1) %}
+    {% if p == page %}
+      <span class="current">{{ p }}</span>
+    {% else %}
+      <a href="{{ url_for('index', status=status or '', level=level, page=p) }}">{{ p }}</a>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

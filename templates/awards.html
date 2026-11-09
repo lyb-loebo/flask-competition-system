@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}获奖公示{% endblock %}
+
+{% block content %}
+<h1>获奖公示</h1>
+
+<table class="grid">
+  <thead>
+    <tr>
+      <th>竞赛</th><th>获奖者</th><th>学院</th><th>奖项</th><th>公示时间</th>
+      {% if session.get('role') == 2 %}<th>操作</th>{% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in awards %}
+    <tr>
+      <td>{{ a.title }}</td>
+      <td>{{ a.real_name }}</td>
+      <td>{{ a.college or '—' }}</td>
+      <td><span class="tag award">{{ a.award_level }}</span></td>
+      <td>{{ a.publish_time }}</td>
+      {% if session.get('role') == 2 %}
+      <td>
+        <form method="post" action="{{ url_for('revoke_award', rid=a.registration_id) }}" class="inline"
+              onsubmit="return confirm('确定撤销这条获奖公示吗？撤销后该成绩可以重新修改。');">
+          <button class="mini danger" type="submit">撤销</button>
+        </form>
+      </td>
+      {% endif %}
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="empty">暂未公示获奖信息</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if session.get('role') == 2 and scored %}
+<section class="panel">
+  <h2>评奖（管理员）</h2>
+  <table class="grid">
+    <thead>
+      <tr><th>竞赛</th><th>学生</th><th>成绩</th><th>当前奖项</th><th>设置</th></tr>
+    </thead>
+    <tbody>
+      {% for s in scored %}
+      <tr>
+        <td>{{ s.title }}</td>
+        <td>{{ s.real_name }}</td>
+        <td>{{ s.score }}</td>
+        <td>{{ s.award_level or '—' }}</td>
+        <td>
+          <form method="post" action="{{ url_for('publish_award', rid=s.id) }}" class="inline">
+            <select name="level">
+              <option>一等奖</option>
+              <option>二等奖</option>
+              <option>三等奖</option>
+            </select>
+            <button class="mini ok" type="submit">公示</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}数据统计{% endblock %}
+
+{% block content %}
+<h1>数据统计</h1>
+
+<div class="charts">
+  <div id="chart-college" class="chart"></div>
+  <div id="chart-award" class="chart"></div>
+  <div id="chart-status" class="chart"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script>
+  var byCollege = {{ by_college|tojson }};
+  var byAward = {{ by_award|tojson }};
+  var byStatus = {{ by_status|tojson }};
+  var statusNames = {{ status_names|tojson }};
+
+  // 图一：各学院报名人数（柱状图）
+  var chart1 = echarts.init(document.getElementById('chart-college'));
+  chart1.setOption({
+    title: { text: '各学院报名人数' },
+    tooltip: {},
+    grid: { left: 60, right: 20, bottom: 60 },
+    xAxis: {
+      type: 'category',
+      data: byCollege.map(function (d) { return d.name; }),
+      axisLabel: { interval: 0, rotate: 20 }
+    },
+    yAxis: { type: 'value', minInterval: 1 },
+    series: [{
+      type: 'bar',
+      data: byCollege.map(function (d) { return d.value; }),
+      itemStyle: { color: '#3b82f6' }
+    }]
+  });
+
+  // 图二：获奖等级分布（饼图）
+  var chart2 = echarts.init(document.getElementById('chart-award'));
+  chart2.setOption({
+    title: { text: '获奖等级分布' },
+    tooltip: { trigger: 'item' },
+    series: [{
+      type: 'pie',
+      radius: '55%',
+      center: ['50%', '58%'],
+      data: byAward
+    }]
+  });
+
+  // 图三：竞赛状态分布（柱状图）
+  var chart3 = echarts.init(document.getElementById('chart-status'));
+  chart3.setOption({
+    title: { text: '竞赛状态分布' },
+    tooltip: {},
+    grid: { left: 60, right: 20, bottom: 60 },
+    xAxis: {
+      type: 'category',
+      data: byStatus.map(function (d) { return statusNames[d.name] || d.name; }),
+      axisLabel: { interval: 0 }
+    },
+    yAxis: { type: 'value', minInterval: 1 },
+    series: [{
+      type: 'bar',
+      data: byStatus.map(function (d) { return d.value; }),
+      itemStyle: { color: '#10b981' }
+    }]
+  });
+
+  // 窗口大小变化时图表跟着自适应
+  window.addEventListener('resize', function () {
+    chart1.resize(); chart2.resize(); chart3.resize();
+  });
+</script>
+{% endblock %}

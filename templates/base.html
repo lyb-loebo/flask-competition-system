@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}高校学科竞赛管理系统{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">高校学科竞赛管理系统</a>
+  <nav>
+    <a href="{{ url_for('index') }}">竞赛</a>
+    <a href="{{ url_for('awards') }}">获奖公示</a>
+    <a href="{{ url_for('notices') }}">公告</a>
+    {% if session.get('uid') %}
+      {% if session.get('role') in (0, 1) %}
+      <a href="{{ url_for('my') }}">{% if session.get('role') == 0 %}我的报名{% else %}待办{% endif %}</a>
+      {% endif %}
+      {% if session.get('role') in (1, 2) %}<a href="{{ url_for('stats') }}">数据统计</a>{% endif %}
+      {% if session.get('role') == 2 %}<a href="{{ url_for('new_competition') }}">发布竞赛</a>{% endif %}
+      <span class="who">{{ session.get('name') }} · {{ ROLE_NAME[session.get('role')] }}</span>
+      <a href="{{ url_for('logout') }}">退出</a>
+    {% else %}
+      <a href="{{ url_for('login') }}">登录</a>
+    {% endif %}
+  </nav>
+</header>
+
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

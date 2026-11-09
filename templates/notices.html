@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}系统公告{% endblock %}
+
+{% block content %}
+<h1>系统公告</h1>
+
+{% for n in notices %}
+<article class="notice">
+  <h2>{{ n.title }}</h2>
+  <p class="meta">{{ n.create_time }}</p>
+  <p>{{ n.content }}</p>
+</article>
+{% else %}
+<p class="empty">暂无公告</p>
+{% endfor %}
+
+{% if session.get('role') == 2 %}
+<section class="panel">
+  <h2>发布公告</h2>
+  <form method="post" class="form">
+    <label>标题 <input name="title" required></label>
+    <label>内容 <textarea name="content" rows="4" required></textarea></label>
+    <button class="primary" type="submit">发布</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

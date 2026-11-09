@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}{% if session.get('role') == 0 %}我的报名{% else %}待办{% endif %}{% endblock %}
+
+{% block content %}
+{% if session.get('role') == 0 %}
+  <h1>我的报名</h1>
+  <table class="grid">
+    <thead>
+      <tr><th>竞赛</th><th>级别</th><th>报名时间</th><th>状态</th><th>成绩</th><th>获奖</th></tr>
+    </thead>
+    <tbody>
+      {% for r in regs %}
+      <tr>
+        <td><a href="{{ url_for('competition_detail', cid=r.competition_id) }}">{{ r.title }}</a></td>
+        <td>{{ r.level }}</td>
+        <td>{{ r.create_time }}</td>
+        <td><span class="tag reg-{{ r.status }}">{{ REG_STATUS.get(r.status) }}</span></td>
+        <td>{{ r.score if r.score is not none else '—' }}</td>
+        <td>{{ r.award_level or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">还没有报名记录，去竞赛列表看看吧</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% else %}
+  <h1>待办</h1>
+
+  <h2>待审核（{{ pending|length }}）</h2>
+  <table class="grid">
+    <thead>
+      <tr><th>竞赛</th><th>学生</th><th>学院</th><th>申请时间</th><th>操作</th></tr>
+    </thead>
+    <tbody>
+      {% for r in pending %}
+      <tr>
+        <td>{{ r.title }}</td>
+        <td>{{ r.real_name }}</td>
+        <td>{{ r.college or '—' }}</td>
+        <td>{{ r.create_time }}</td>
+        <td>
+          <form method="post" action="{{ url_for('audit', rid=r.id) }}" class="inline">
+            <input type="hidden" name="action" value="pass">
+            <button class="mini ok" type="submit">通过</button>
+          </form>
+          <form method="post" action="{{ url_for('audit', rid=r.id) }}" class="inline">
+            <input type="hidden" name="action" value="reject">
+            <input type="text" name="reason" placeholder="原因">
+            <button class="mini danger" type="submit">驳回</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="empty">暂无待审核报名</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>待打分（{{ ungraded|length }}）</h2>
+  <table class="grid">
+    <thead>
+      <tr><th>竞赛</th><th>学生</th><th>学院</th><th>打分</th></tr>
+    </thead>
+    <tbody>
+      {% for r in ungraded %}
+      <tr>
+        <td>{{ r.title }}</td>
+        <td>{{ r.real_name }}</td>
+        <td>{{ r.college or '—' }}</td>
+        <td>
+          <form method="post" action="{{ url_for('save_score', rid=r.id) }}" class="inline">
+            <input type="number" name="score" min="0" max="100" step="0.5" required placeholder="0-100" class="narrow">
+            <input type="text" name="comment" placeholder="评语">
+            <button class="mini ok" type="submit">保存</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="empty">暂无待打分记录</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>已打分（{{ scored|length }}）</h2>
+  <table class="grid">
+    <thead>
+      <tr><th>竞赛</th><th>学生</th><th>成绩</th><th>评语</th><th>操作</th></tr>
+    </thead>
+    <tbody>
+      {% for r in scored %}
+      <tr>
+        <td>{{ r.title }}</td>
+        <td>{{ r.real_name }}</td>
+        <td>{{ r.score }}</td>
+        <td>{{ r.comment or '—' }}</td>
+        <td>
+          {% if r.award_id %}
+            <span class="muted">已公示「{{ r.award_level }}」，需先撤销奖项</span>
+          {% else %}
+            <form method="post" action="{{ url_for('save_score', rid=r.id) }}" class="inline">
+              <input type="number" name="score" min="0" max="100" step="0.5" value="{{ r.score }}" class="narrow">
+              <input type="text" name="comment" value="{{ r.comment or '' }}" placeholder="评语">
+              <button class="mini ok" type="submit">改分</button>
+            </form>
+            <form method="post" action="{{ url_for('delete_score', rid=r.id) }}" class="inline"
+                  onsubmit="return confirm('确定撤销这条成绩吗？撤销后回到待打分。');">
+              <button class="mini danger" type="submit">撤销</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="empty">还没有打过分的记录</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+{% endblock %}
